@@ -8,9 +8,11 @@ require './version_tables.rb'
 project_dir = Pathname.new(File.expand_path(__FILE__)).parent
 pe_json = project_dir + 'pe.json'
 agent_json = project_dir + 'agent.json'
+client_json = project_dir + 'client.json'
 
 version_info = JSON.load(File.read(pe_json))
 agent_info = JSON.load(File.read(agent_json))
+client_info = JSON.load(File.read(client_json))
 
 agent_stuff = [
   "Puppet Agent",
@@ -37,6 +39,17 @@ server_stuff = [
   "Nginx"
 ]
 
+client_stuff = [
+  'PE Client Tools',
+
+  'Razor Client',
+  'Deployer Client',
+  'Puppet Access',
+
+  'Curl',
+  'LibSSH'
+]
+
 our_versions = version_info.keys.select {|v|
   v =~ /^2015/
 }.sort.reverse
@@ -48,6 +61,9 @@ our_versions = version_info.keys.select {|v|
 def merge_vanagon_info!(this_pe_version_info, name_of_vanagon_package, vanagon_data)
   # Remember that we might have to handle multiple agent/client-tools versions per PE release. So...
   versions_and_operating_systems = this_pe_version_info[name_of_vanagon_package] # it's a hash. '1.2.2' => ['os-1', 'os-2']
+  if versions_and_operating_systems.nil?
+    return
+  end
   versions_and_operating_systems.each {|vanagon_version, os_list|
     vanagon_contents = vanagon_data[vanagon_version] # it's a hash. 'Component' => '4.2.2'
     vanagon_contents.each {|component, component_version|
@@ -63,6 +79,7 @@ end
 # Merge info from puppet-agent and client tools packages into PE version info!
 our_versions.each {|pe_version|
   merge_vanagon_info!( version_info[pe_version], 'Puppet Agent', agent_info )
+  merge_vanagon_info!( version_info[pe_version], 'PE Client Tools', client_info )
 }
 
 # First, software on agents / all nodes.
@@ -75,11 +92,18 @@ agent_body = VersionTables::PE::make_table_body(our_versions, agent_stuff, versi
 server_header = ['PE Version'].concat(server_stuff)
 server_body = VersionTables::PE::make_table_body(our_versions, server_stuff, version_info)
 
+# Finally, client software.
+
+client_header = ['PE Version'].concat(client_stuff)
+client_body = VersionTables::PE::make_table_body(our_versions, client_stuff, version_info)
+
 # now make tables
 
 print "### Agent Components (On All Nodes)\n\n"
 print VersionTables::table_from_header_and_array_of_body_rows(agent_header, agent_body)
 print "### Server Components\n\n"
 print VersionTables::table_from_header_and_array_of_body_rows(server_header, server_body)
+print "### Client Components\n\n"
+print VersionTables::table_from_header_and_array_of_body_rows(client_header, client_body)
 
 # done

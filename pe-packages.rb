@@ -28,6 +28,10 @@ end
   'puppet-agent'
 ],
 
+'PE Client Tools' => [
+  'pe-client-tools'
+],
+
 'Puppet Server' => [
   'pe-puppetserver'
 ],
