@@ -1,4 +1,5 @@
 puppet-agent
 enterprise-dist
+puppet-client-tools-vanagon
 *.json
 output

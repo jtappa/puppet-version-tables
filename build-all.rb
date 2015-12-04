@@ -7,6 +7,8 @@ puts "Updating PE JSON..."
 system("#{my_dir}/pe-packages.rb > #{my_dir}/pe.json")
 puts "done.\nUpdating puppet-agent JSON..."
 system("#{my_dir}/agent-packages.rb > #{my_dir}/agent.json")
+puts "done.\nUpdating client tools JSON..."
+system("#{my_dir}/client-packages.rb > #{my_dir}/client.json")
 puts "done."
 puts "Building PE tables:"
 puts "3.2–3.3..."
