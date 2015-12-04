@@ -24,15 +24,23 @@ component_files = {
   'LibSSH' => 'libssh.rb'
 }
 
+def truncate_sha(version)
+  if version =~ /^[a-f\d]+$/
+    version[0,7]
+  else
+    version
+  end
+end
+
 def version_from_json(file)
   # We want the last component of a string like refs/tags/4.2.0.
-  JSON.load(File.read(file))['ref'].split('/')[-1]
+  truncate_sha( JSON.load(File.read(file))['ref'].split('/')[-1] )
 end
 
 def version_from_ruby(file)
   ruby_text = File.read(file)
   # find 'pkg.version "version"' and capture the version.
-  ruby_text.match(/^\s*pkg\.version[\s\(]*['"]([^'"]+)['"]/)[1]
+  truncate_sha( ruby_text.match(/^\s*pkg\.version[\s\(]*['"]([^'"]+)['"]/)[1] )
 end
 
 tags = client_repo.tags
